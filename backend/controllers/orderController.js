@@ -340,9 +340,6 @@ export const sendInvoiceToWhatsApp = async (req, res) => {
     // 3️⃣ Create invoice HTML
     const invoiceHTML = generateInvoiceHTML(fullOrder);
 
-
-
-    // 5️⃣ Generate PDF via Puppeteer
     // 5️⃣ Generate PDF via Puppeteer
 
     let browser;
