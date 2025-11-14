@@ -1,5 +1,8 @@
 import { supabase } from "../config/supabaseClient.js";
-import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
+// import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+
 import { generateInvoiceHTML } from "../templates/generateInvoiceHTML.js";
 
 // -------------------- ORDERS --------------------
@@ -327,7 +330,7 @@ export const sendInvoiceToWhatsApp = async (req, res) => {
           ? order.extralist
           : safeJSONParse(order.notes, []),
 
-       finalTotal:
+      finalTotal:
         order.grand_total ||
         ((order.total || 0) + (order.gst_total || 0)),
     };
@@ -339,18 +342,37 @@ export const sendInvoiceToWhatsApp = async (req, res) => {
 
 
 
- // 5️⃣ Generate PDF via Puppeteer
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"], // for server safety
-    });
+    // 5️⃣ Generate PDF via Puppeteer
+    // 5️⃣ Generate PDF via Puppeteer
+
+    let browser;
+
+    if (process.env.RENDER) {
+      // Render (Linux server)
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    } else {
+      // Local machine (Windows)
+      browser = await puppeteer.launch({
+        headless: true,
+        executablePath: "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        args: ["--no-sandbox"],
+      });
+    }
+
     const page = await browser.newPage();
     await page.setContent(invoiceHTML, { waitUntil: "networkidle0" });
+
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: "20px", bottom: "20px" },
     });
+
     await browser.close();
 
 
