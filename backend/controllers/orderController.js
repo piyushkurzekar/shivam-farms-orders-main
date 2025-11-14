@@ -338,7 +338,8 @@ export const sendInvoiceToWhatsApp = async (req, res) => {
     const invoiceHTML = generateInvoiceHTML(fullOrder);
 
 
-    // 5️⃣ Generate PDF via Puppeteer
+
+ // 5️⃣ Generate PDF via Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
       args: ["--no-sandbox", "--disable-setuid-sandbox"], // for server safety
@@ -351,6 +352,8 @@ export const sendInvoiceToWhatsApp = async (req, res) => {
       margin: { top: "20px", bottom: "20px" },
     });
     await browser.close();
+
+
 
     // 6️⃣ Upload PDF to Supabase Storage
     const fileName = `invoice_${orderId}_${Date.now()}.pdf`;
